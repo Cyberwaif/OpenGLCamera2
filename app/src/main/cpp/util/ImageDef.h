@@ -89,7 +89,7 @@ public:
 			}
 				break;
 			default:
-				LOGCATE("NativeImageUtil::AllocNativeImage do not support the format. Format = %d", pImage->format);
+				LOGCATV("NativeImageUtil::AllocNativeImage do not support the format. Format = %d", pImage->format);
 				break;
 		}
 	}
@@ -135,7 +135,7 @@ public:
 				break;
 			default:
 			{
-				LOGCATE("NativeImageUtil::CopyNativeImage do not support the format. Format = %d", pSrcImg->format);
+				LOGCATV("NativeImageUtil::CopyNativeImage do not support the format. Format = %d", pSrcImg->format);
 			}
 				break;
 		}
@@ -179,7 +179,7 @@ public:
 
 		FILE *fp = fopen(imgPath, "wb");
 
-		LOGCATE("DumpNativeImage fp=%p, file=%s", fp, imgPath);
+		LOGCATV("DumpNativeImage fp=%p, file=%s", fp, imgPath);
 
 		if(fp)
 		{
@@ -212,7 +212,7 @@ public:
 				}
 				default:
 				{
-					LOGCATE("DumpNativeImage default");
+					LOGCATV("DumpNativeImage default");
 					break;
 				}
 			}

@@ -42,6 +42,8 @@ public:
 
 	void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
+	void SetHSVColorFilter(float hsv);
+
 	void SetParamsInt(int paramType, int param);
 
 	int GetParamsInt(int paramType);

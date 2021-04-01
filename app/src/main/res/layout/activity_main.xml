@@ -29,4 +29,13 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_camera" />
+
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="Reset" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

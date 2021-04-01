@@ -28,7 +28,7 @@ import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA
 
 public abstract class BaseRenderActivity extends AppCompatActivity implements MyGestureListener.SimpleGestureListener {
     private static final String TAG = "BaseRenderActivity";
-    protected static final int SHADER_NUM = 32;
+    protected static final int SHADER_NUM = 33;
     protected static final int LUT_A_SHADER_INDEX = 19;
     protected static final int LUT_B_SHADER_INDEX = 20;
     protected static final int LUT_C_SHADER_INDEX = 21;
@@ -38,7 +38,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
     //protected int mCurrentShaderIndex = SHADER_NUM - 1;
-    protected int mCurrentShaderIndex = 23;
+    protected int mCurrentShaderIndex = 32;
     protected Size mRootViewSize, mScreenSize;
 
     @Override
@@ -77,11 +77,11 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
         return true;
     }
 
-    public void updateTransformMatrix(String cameraId) {
-        if (Integer.valueOf(cameraId) == CameraCharacteristics.LENS_FACING_FRONT) {
-            mByteFlowRender.setTransformMatrix(90, 0);
+    public void updateTransformMatrix(String cameraId, int sensorOrientation) {
+        if (Integer.valueOf(cameraId) == 0) {
+            mByteFlowRender.setTransformMatrix(sensorOrientation, 0);
         } else {
-            mByteFlowRender.setTransformMatrix(90, 1);
+            mByteFlowRender.setTransformMatrix(sensorOrientation, 1);
         }
 
     }

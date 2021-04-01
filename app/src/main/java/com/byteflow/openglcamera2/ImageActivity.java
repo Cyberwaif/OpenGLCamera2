@@ -48,10 +48,13 @@ public class ImageActivity extends BaseRenderActivity implements GLByteFlowRende
         mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
         String path = getIntent().getStringExtra("img_path");
         String camera_id = getIntent().getStringExtra("img_ort");
+        int orientation = getIntent().getIntExtra("sensor_orientation", 90);
         Log.d(TAG, "onCreate() called with: path = [" + path + "]");
         mByteFlowFrame = FrameUtil.decodeFrame(path);
-        updateTransformMatrix(camera_id);
-
+        updateTransformMatrix(camera_id, orientation);
+        mByteFlowRender.readPixels(new Size(mByteFlowFrame.getHeight(),mByteFlowFrame.getWidth()), getResultImgFile(".jpg").getPath());
+        Log.i(TAG, "Size: "+mByteFlowFrame.getHeight() + "x" + mByteFlowFrame.getWidth());
+        mByteFlowRender.requestRender();
     }
 
     @Override

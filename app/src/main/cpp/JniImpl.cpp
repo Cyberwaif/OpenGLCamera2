@@ -98,6 +98,15 @@ JNIEXPORT void JNICALL native_LoadShaderScript
 	env->ReleaseStringUTFChars(script, cStr);
 }
 
+JNIEXPORT void JNICALL native_SetHSV
+		(JNIEnv *env, jobject instance, jfloat hsv)
+{
+	ByteFlowRenderContext *pContext = ByteFlowRenderContext::GetRenderContext(env, instance);
+	LOGCATI("%s %d native_SetHSV %f", __FILE_NAME__, __LINE__, hsv);
+	if(pContext) pContext->SetHSVColorFilter(hsv);
+}
+
+
 /*
  * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
  * Method:    native_SetTransformMatrix
@@ -184,11 +193,12 @@ static JNINativeMethod g_RenderMethods[] = {
 		{"native_OnSurfaceCreated",   "()V",                    (void *)(native_OnSurfaceCreated)},
 		{"native_OnSurfaceChanged",   "(II)V",                  (void *)(native_OnSurfaceChanged)},
 		{"native_OnDrawFrame",        "()V",                    (void *)(native_OnDrawFrame)},
+		{"native_SetHSV",             "(F)V", 					  (void *)(native_SetHSV)},
 };
 
 static int RegisterNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *methods, int methodNum)
 {
-	LOGCATE("RegisterNativeMethods");
+	LOGCATV("RegisterNativeMethods");
 	jclass clazz = env->FindClass(className);
 	if (clazz == NULL)
 	{
@@ -203,7 +213,7 @@ static int RegisterNativeMethods(JNIEnv *env, const char *className, JNINativeMe
 
 static void UnregisterNativeMethods(JNIEnv *env, const char *className)
 {
-	LOGCATE("RegisterNativeMethods");
+	LOGCATV("RegisterNativeMethods");
 	jclass clazz = env->FindClass(className);
 	if (clazz == NULL)
 	{

@@ -37,6 +37,8 @@ public:
 
     virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror) = 0;
 
+    virtual void SetHSVColorFilter(float hsv) = 0;
+
     virtual void SetShaderIndex(int shaderIndex) = 0;
 
     virtual int GetShaderIndex() = 0;
@@ -53,6 +55,13 @@ public:
 
     virtual void OnDrawFrame() = 0;
 
+    float getHSVColorFilter() {
+    	return m_HSVColorFilter;
+    }
+    void setHSVColorFilter(float hsv) {
+		LOGCATI("%s %d: %f --> %f",__FILE_NAME__, __LINE__,  m_HSVColorFilter, hsv);
+    	m_HSVColorFilter = hsv;
+    }
 
 protected:
 	volatile bool   m_IsProgramChanged;
@@ -60,7 +69,7 @@ protected:
 	size_t          m_ViewportHeight;
 	NativeImage     m_RenderFrame;
 	TransformMatrix m_TransformMatrix;
-
+	float 			m_HSVColorFilter;
 	volatile bool   m_IsTextureDirty;
 };
 

@@ -25,7 +25,7 @@ GLuint GLUtils::LoadShader(GLenum shaderType, const char *pSource)
                     if (buf)
                     {
                         glGetShaderInfoLog(shader, infoLen, NULL, buf);
-                        LOGCATE("GLUtils::LoadShader Could not compile shader %d:\n%s\n", shaderType, buf);
+                        LOGCATV("GLUtils::LoadShader Could not compile shader %d:\n%s\n", shaderType, buf);
                         free(buf);
                     }
                     glDeleteShader(shader);
@@ -73,7 +73,7 @@ GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFrag
                     if (buf)
                     {
                         glGetProgramInfoLog(program, bufLength, NULL, buf);
-                        LOGCATE("GLUtils::CreateProgram Could not link program:\n%s\n", buf);
+                        LOGCATV("GLUtils::CreateProgram Could not link program:\n%s\n", buf);
                         free(buf);
                     }
                 }
@@ -82,13 +82,13 @@ GLuint GLUtils::CreateProgram(const char *pVertexShaderSource, const char *pFrag
             }
         }
     FUN_END_TIME("GLUtils::CreateProgram")
-    LOGCATE("GLUtils::CreateProgram program = %d", program);
+    LOGCATV("GLUtils::CreateProgram program = %d", program);
     return program;
 }
 
 void GLUtils::DeleteProgram(GLuint &program)
 {
-    LOGCATE("GLUtils::DeleteProgram");
+    LOGCATV("GLUtils::DeleteProgram");
     if (program)
     {
         glUseProgram(0);
@@ -101,7 +101,7 @@ void GLUtils::CheckGLError(const char *pGLOperation)
 {
     for (GLint error = glGetError(); error; error = glGetError())
     {
-        LOGCATE("GLUtils::CheckGLError GL Operation %s() glError (0x%x)\n", pGLOperation, error);
+        LOGCATV("GLUtils::CheckGLError GL Operation %s() glError (0x%x)\n", pGLOperation, error);
     }
 
 }

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,9 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_I420;
-import static com.byteflow.openglcamera2.render.ByteFlowRender.PARAM_TYPE_SET_SHADER_INDEX;
 
-public class MainActivity extends BaseRenderActivity implements Camera2FrameCallback, MyGestureListener.SimpleGestureListener, View.OnClickListener {
+public class MainActivity extends BaseRenderActivity implements Camera2FrameCallback, MyGestureListener.SimpleGestureListener, View.OnClickListener, View.OnTouchListener {
     private static final String TAG = "MainActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.CAMERA,
@@ -54,6 +54,8 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
     private RelativeLayout mSurfaceViewRoot;
     private Camera2Wrapper mCamera2Wrapper;
     private ImageButton mSwitchCamBtn, mSwitchRatioBtn;
+
+    private Button resetBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +87,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         } else {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, CAMERA_PERMISSION_REQUEST_CODE);
         }
-        updateTransformMatrix(mCamera2Wrapper.getCameraId());
+        updateTransformMatrix(mCamera2Wrapper.getCameraId(), mCamera2Wrapper.getSensorOrientation());
         if (mSurfaceViewRoot != null) {
             updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
         }
@@ -142,7 +144,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 for (int i = 0; i < cameraIds.length; i++) {
                     if (!cameraIds[i].equals(cameraId)) {
                         mCamera2Wrapper.updateCameraId(cameraIds[i]);
-                        updateTransformMatrix(cameraIds[i]);
+                        updateTransformMatrix(cameraIds[i], mCamera2Wrapper.getSensorOrientation());
                         updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
                         break;
                     }
@@ -162,13 +164,14 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
     @Override
     public void onCaptureFrame(byte[] data, int width, int height) {
-        Log.d(TAG, "onCaptureFrame() called with: data = [" + data + "], width = [" + width + "], height = [" + height + "]");
+        Log.i(TAG, "onCaptureFrame() called with: data = [" + data + "], width = [" + width + "], height = [" + height + "]");
         ByteFlowFrame byteFlowFrame = new ByteFlowFrame(data, width, height);
         String path = FrameUtil.encodeFrame(byteFlowFrame);
         Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, ImageActivity.class);
         intent.putExtra("img_path", path);
         intent.putExtra("img_ort", mCamera2Wrapper.getCameraId());
+        intent.putExtra("sensor_orientation", mCamera2Wrapper.getSensorOrientation());
         startActivity(intent);
 
     }
@@ -176,6 +179,9 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
     private void initViews() {
         mSwitchCamBtn = (ImageButton) findViewById(R.id.switch_camera_btn);
         mSwitchRatioBtn = (ImageButton) findViewById(R.id.switch_ratio_btn);
+        resetBtn = findViewById(R.id.btn_reset);
+        resetBtn.setBackgroundColor(0xFFFF0000);
+        resetBtn.setOnClickListener(this);
         mSwitchCamBtn.bringToFront();
         mSwitchRatioBtn.bringToFront();
         mSwitchCamBtn.setOnClickListener(this);
@@ -185,6 +191,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
+        mGLSurfaceView.setOnTouchListener(this);
         mByteFlowRender.init(mGLSurfaceView);
         mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
 
@@ -406,7 +413,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                     for (int i = 0; i < cameraIds.length; i++) {
                         if (!cameraIds[i].equals(cameraId)) {
                             mCamera2Wrapper.updateCameraId(cameraIds[i]);
-                            updateTransformMatrix(cameraIds[i]);
+                            updateTransformMatrix(cameraIds[i], mCamera2Wrapper.getSensorOrientation());
                             updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
                             break;
                         }
@@ -416,8 +423,22 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             case R.id.switch_ratio_btn:
                 showChangeSizeDialog();
                 break;
+            case R.id.btn_reset:
+                mByteFlowRender.FilterColor(0,0,true);
+                break;
                 default:
         }
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        Log.e(TAG, "tap:"+motionEvent.getX()+","+motionEvent.getY()+" of "+view.getWidth()+","+view.getHeight());
+        switchColor(motionEvent.getX(), motionEvent.getY());
+        return false;
+    }
+
+    private void switchColor(float x, float y) {
+        mByteFlowRender.FilterColor(x, y, false);
     }
 
     public static class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> implements View.OnClickListener {

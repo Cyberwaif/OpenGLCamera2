@@ -51,6 +51,8 @@ public:
 
 	virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
+	virtual void SetHSVColorFilter(float hsv);
+
 	virtual void SetShaderIndex(int shaderIndex);
 
 	virtual int GetShaderIndex();

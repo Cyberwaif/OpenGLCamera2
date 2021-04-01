@@ -36,25 +36,25 @@ ByteFlowRenderContext::~ByteFlowRenderContext()
 
 void ByteFlowRenderContext::CreateRenderContext(JNIEnv *env, jobject instance, jint renderType)
 {
-	LOGCATE("ByteFlowRenderContext::CreateRenderContext renderType = %d", renderType);
+	LOGCATV("ByteFlowRenderContext::CreateRenderContext renderType = %d", renderType);
 	ByteFlowRenderContext *pContext = new ByteFlowRenderContext(renderType);
 	StoreRenderContext(env, instance, pContext);
 }
 
 void ByteFlowRenderContext::StoreRenderContext(JNIEnv *env, jobject instance, ByteFlowRenderContext *pContext)
 {
-	LOGCATE("ByteFlowRenderContext::StoreRenderContext");
+	LOGCATV("ByteFlowRenderContext::StoreRenderContext");
 	jclass cls = env->GetObjectClass(instance);
 	if (cls == NULL)
 	{
-		LOGCATE("ByteFlowRenderContext::StoreRenderContext cls == NULL");
+		LOGCATV("ByteFlowRenderContext::StoreRenderContext cls == NULL");
 		return;
 	}
 
 	s_ContextHandle = env->GetFieldID(cls, "mNativeContextHandle", "J");
 	if (s_ContextHandle == NULL)
 	{
-		LOGCATE("ByteFlowRenderContext::StoreRenderContext s_ContextHandle == NULL");
+		LOGCATV("ByteFlowRenderContext::StoreRenderContext s_ContextHandle == NULL");
 		return;
 	}
 
@@ -65,10 +65,10 @@ void ByteFlowRenderContext::StoreRenderContext(JNIEnv *env, jobject instance, By
 
 void ByteFlowRenderContext::DeleteRenderContext(JNIEnv *env, jobject instance)
 {
-	LOGCATE("ByteFlowRenderContext::DeleteRenderContext");
+	LOGCATV("ByteFlowRenderContext::DeleteRenderContext");
 	if (s_ContextHandle == NULL)
 	{
-		LOGCATE("ByteFlowRenderContext::DeleteRenderContext Could not find render context.");
+		LOGCATV("ByteFlowRenderContext::DeleteRenderContext Could not find render context.");
 		return;
 	}
 
@@ -83,11 +83,11 @@ void ByteFlowRenderContext::DeleteRenderContext(JNIEnv *env, jobject instance)
 
 ByteFlowRenderContext *ByteFlowRenderContext::GetRenderContext(JNIEnv *env, jobject instance)
 {
-	LOGCATE("ByteFlowRenderContext::GetRenderContext");
+	LOGCATV("ByteFlowRenderContext::GetRenderContext");
 
 	if (s_ContextHandle == NULL)
 	{
-		LOGCATE("ByteFlowRenderContext::GetRenderContext Could not find render context.");
+		LOGCATV("ByteFlowRenderContext::GetRenderContext Could not find render context.");
 		return NULL;
 	}
 
@@ -108,7 +108,7 @@ int ByteFlowRenderContext::UnInit()
 
 void ByteFlowRenderContext::UpdateFrame(int format, uint8_t *pBuffer, int width, int height)
 {
-	LOGCATE("ByteFlowRenderContext::UpdateFrame format=%d, width=%d, height=%d, pData=%p",
+	LOGCATV("ByteFlowRenderContext::UpdateFrame format=%d, width=%d, height=%d, pData=%p",
 			format, width, height, pBuffer);
 	NativeImage nativeImage;
 	nativeImage.format = format;
@@ -137,9 +137,14 @@ void ByteFlowRenderContext::SetTransformMatrix(float translateX, float translate
 	m_pByteFlowRender->SetTransformMatrix(translateX, translateY, scaleX, scaleY, degree, mirror);
 }
 
+void ByteFlowRenderContext::SetHSVColorFilter(float hsv)
+{
+	m_pByteFlowRender->SetHSVColorFilter(hsv);
+}
+
 void ByteFlowRenderContext::SetParamsInt(int paramType, int param)
 {
-	LOGCATE("ByteFlowRenderContext::SetParamsInt paramType = %d, param = %d", paramType, param);
+	LOGCATV("ByteFlowRenderContext::SetParamsInt paramType = %d, param = %d", paramType, param);
 	switch (paramType)
 	{
 		case PARAM_TYPE_SET_SHADER_INDEX:
@@ -153,7 +158,7 @@ void ByteFlowRenderContext::SetParamsInt(int paramType, int param)
 
 int ByteFlowRenderContext::GetParamsInt(int paramType)
 {
-	LOGCATE("ByteFlowRenderContext::GetParamsInt paramType = %d", paramType);
+	LOGCATV("ByteFlowRenderContext::GetParamsInt paramType = %d", paramType);
 	switch (paramType)
 	{
 		case PARAM_TYPE_SET_SHADER_INDEX:
@@ -181,7 +186,7 @@ void ByteFlowRenderContext::OnDrawFrame()
 
 void ByteFlowRenderContext::LoadLutImageData(int index, int format, int width, int height, uint8_t *pData)
 {
-	LOGCATE("ByteFlowRenderContext::LoadFilterImageData index=%d, format=%d, width=%d, height=%d, pData=%p",
+	LOGCATV("ByteFlowRenderContext::LoadFilterImageData index=%d, format=%d, width=%d, height=%d, pData=%p",
 			index, format, width, height, pData);
 	NativeImage nativeImage;
 	nativeImage.format = format;
@@ -208,7 +213,7 @@ void ByteFlowRenderContext::LoadLutImageData(int index, int format, int width, i
 
 void ByteFlowRenderContext::LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen)
 {
-	LOGCATE("ByteFlowRenderContext::LoadFragShaderScript shaderIndex = %d, pShaderStr = %s, strLen = %d", shaderIndex, pShaderStr, strLen);
+	LOGCATV("ByteFlowRenderContext::LoadFragShaderScript shaderIndex = %d, pShaderStr = %s, strLen = %d", shaderIndex, pShaderStr, strLen);
 	m_pByteFlowRender->LoadFragShaderScript(shaderIndex, pShaderStr, strLen);
 
 }

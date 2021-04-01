@@ -53,7 +53,7 @@ GLByteFlowRender::GLByteFlowRender() :
         m_ShaderIndex(0),
         m_PeriodicFrameIndex(0),
         m_FrameIndex(-1) {
-    LOGCATE("GLByteFlowRender::GLByteFlowRender");
+    LOGCATV("GLByteFlowRender::GLByteFlowRender");
     m_IsProgramChanged = false;
     m_IsUpdateExtTexture = false;
     m_pFragShaderBuf = nullptr;
@@ -62,16 +62,16 @@ GLByteFlowRender::GLByteFlowRender() :
 }
 
 GLByteFlowRender::~GLByteFlowRender() {
-    LOGCATE("GLByteFlowRender::~GLByteFlowRender");
+    LOGCATV("GLByteFlowRender::~GLByteFlowRender");
 }
 
 int GLByteFlowRender::Init(int initType) {
-    LOGCATE("GLByteFlowRender::Init");
+    LOGCATV("GLByteFlowRender::Init");
     return 0;
 }
 
 int GLByteFlowRender::UnInit() {
-    LOGCATE("GLByteFlowRender::UnInit");
+    LOGCATV("GLByteFlowRender::UnInit");
     NativeImageUtil::FreeNativeImage(&m_RenderFrame);
     NativeImageUtil::FreeNativeImage(&m_ExtRgbaImage);
     //DeleteTextures();
@@ -87,7 +87,7 @@ int GLByteFlowRender::UnInit() {
 }
 
 void GLByteFlowRender::UpdateFrame(NativeImage *pImage) {
-    LOGCATE("GLByteFlowRender::UpdateFrame");
+    LOGCATV("GLByteFlowRender::UpdateFrame");
     if (pImage == nullptr) return;
     if (pImage->width != m_RenderFrame.width || pImage->height != m_RenderFrame.height) {
         if (m_RenderFrame.ppPlane[0] != NULL) {
@@ -106,7 +106,7 @@ void GLByteFlowRender::UpdateFrame(NativeImage *pImage) {
 void
 GLByteFlowRender::SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY,
                                      int degree, int mirror) {
-    LOGCATE("GLByteFlowRender::SetTransformMatrix translateX = %f, translateY = %f, scaleX = %f, scaleY = %f, degree = %d, mirror = %d",
+    LOGCATV("GLByteFlowRender::SetTransformMatrix translateX = %f, translateY = %f, scaleX = %f, scaleY = %f, degree = %d, mirror = %d",
             translateX, translateY, scaleX, scaleY, degree, mirror);
 
     m_TransformMatrix.degree = degree;
@@ -115,20 +115,26 @@ GLByteFlowRender::SetTransformMatrix(float translateX, float translateY, float s
 
 }
 
+void GLByteFlowRender::SetHSVColorFilter(float hsv) {
+    LOGCATI("%s %d native_SetHSV %f", __FILE_NAME__, __LINE__, hsv);
+    setHSVColorFilter(hsv);
+    m_IsShaderChanged = true;
+}
+
 void GLByteFlowRender::SetShaderIndex(int shaderIndex) {
-    LOGCATE("GLByteFlowRender::SetShaderIndex shaderIndex = %d", shaderIndex);
+    LOGCATV("GLByteFlowRender::SetShaderIndex shaderIndex = %d", shaderIndex);
     m_ShaderIndex = shaderIndex;
     m_IsShaderChanged = true;
 
 }
 
 int GLByteFlowRender::GetShaderIndex() {
-    LOGCATE("GLByteFlowRender::GetShaderIndex");
+    LOGCATV("GLByteFlowRender::GetShaderIndex");
     return m_ShaderIndex;
 }
 
 bool GLByteFlowRender::CreateTextures() {
-    LOGCATE("GLByteFlowRender::CreateTextures");
+    LOGCATV("GLByteFlowRender::CreateTextures");
     GLsizei yWidth = static_cast<GLsizei>(m_RenderFrame.width);
     GLsizei yHeight = static_cast<GLsizei>(m_RenderFrame.height);
 
@@ -187,7 +193,7 @@ bool GLByteFlowRender::CreateTextures() {
 }
 
 bool GLByteFlowRender::UpdateTextures() {
-    LOGCATE("GLByteFlowRender::UpdateTextures");
+    LOGCATV("GLByteFlowRender::UpdateTextures");
     if (m_RenderFrame.ppPlane[0] == NULL) {
         return false;
     }
@@ -236,7 +242,7 @@ bool GLByteFlowRender::UpdateTextures() {
 }
 
 bool GLByteFlowRender::DeleteTextures() {
-    LOGCATE("GLByteFlowRender::DeleteTextures");
+    LOGCATV("GLByteFlowRender::DeleteTextures");
     if (m_YTextureId) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -269,39 +275,39 @@ bool GLByteFlowRender::DeleteTextures() {
 }
 
 void GLByteFlowRender::OnSurfaceCreated() {
-    LOGCATE("GLByteFlowRender::OnSurfaceCreated");
+    LOGCATV("GLByteFlowRender::OnSurfaceCreated");
     int nMaxTextureSize = 0;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &nMaxTextureSize);
-    LOGCATE("GLByteFlowRender::OnSurfaceCreated GL_MAX_TEXTURE_SIZE = %d", nMaxTextureSize);
+    LOGCATV("GLByteFlowRender::OnSurfaceCreated GL_MAX_TEXTURE_SIZE = %d", nMaxTextureSize);
     ByteFlowLock lock(&m_ShaderBufLock);
     if (m_pFragShaderBuf != nullptr) {
         if (!CreateProgram(kVertexShader, m_pFragShaderBuf)) {
-            LOGCATE("GLByteFlowRender::OnSurfaceCreated create program fail.");
+            LOGCATV("GLByteFlowRender::OnSurfaceCreated create program fail.");
         }
     } else {
         if (!CreateProgram(kVertexShader, kFragmentShader0)) {
-            LOGCATE("GLByteFlowRender::OnSurfaceCreated create program fail.");
+            LOGCATV("GLByteFlowRender::OnSurfaceCreated create program fail.");
         }
     }
 
 }
 
 void GLByteFlowRender::OnSurfaceChanged(int width, int height) {
-    LOGCATE("GLByteFlowRender::OnSurfaceChanged [w, h] = [%d, %d]", width, height);
+    LOGCATI("GLByteFlowRender::OnSurfaceChanged [w, h] = [%d, %d]", width, height);
     m_ViewportWidth = width;
     m_ViewportHeight = height;
     m_IsProgramChanged = true;
 }
 
 void GLByteFlowRender::OnDrawFrame() {
-    LOGCATE("GLByteFlowRender::OnDrawFrame");
+    LOGCATV("GLByteFlowRender::OnDrawFrame %dx%d", m_ViewportWidth, m_ViewportHeight);
     glViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glDisable(GL_CULL_FACE);
 
     if (!UpdateTextures() || !UseProgram()) {
-        LOGCATE("GLByteFlowRender::OnDrawFrame skip frame");
+        LOGCATV("GLByteFlowRender::OnDrawFrame skip frame");
         return;
     }
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -311,7 +317,7 @@ void GLByteFlowRender::OnDrawFrame() {
 }
 
 void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &transformMatrix) {
-    LOGCATE("GLByteFlowRender::UpdateMVPMatrix");
+    LOGCATV("GLByteFlowRender::UpdateMVPMatrix");
     float fFactorX = 1.0f;
     float fFactorY = 1.0f;
 
@@ -358,7 +364,7 @@ void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &t
     Model = glm::translate(Model,
                            glm::vec3(transformMatrix.translateX, transformMatrix.translateY, 0.0f));
 
-    LOGCATE("SetMVP real: rotate %d,%.2f,%0.5f,%0.5f,%0.5f,%0.5f,", transformMatrix.degree, fRotate,
+    LOGCATV("SetMVP real: rotate %d,%.2f,%0.5f,%0.5f,%0.5f,%0.5f,", transformMatrix.degree, fRotate,
             transformMatrix.translateX, transformMatrix.translateY,
             fFactorX * transformMatrix.scaleX, fFactorY * transformMatrix.scaleY);
 
@@ -368,7 +374,7 @@ void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &t
 }
 
 GLuint GLByteFlowRender::UseProgram() {
-    LOGCATE("GLByteFlowRender::UseProgram");
+    LOGCATV("GLByteFlowRender::UseProgram");
     ByteFlowLock lock(&m_ShaderBufLock);
     if (m_IsShaderChanged) {
         GLUtils::DeleteProgram(m_Program);
@@ -378,7 +384,7 @@ GLuint GLByteFlowRender::UseProgram() {
     }
 
     if (!m_Program) {
-        LOGCATE("GLByteFlowRender::UseProgram Could not use program.");
+        LOGCATV("GLByteFlowRender::UseProgram Could not use program.");
         return 0;
     }
 
@@ -413,7 +419,7 @@ GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char *pFr
                                        m_FragShader);
     if (!m_Program) {
         GLUtils::CheckGLError("Create Program");
-        LOGCATE("GLByteFlowRender::CreateProgram Could not create program.");
+        LOGCATV("GLByteFlowRender::CreateProgram Could not create program.");
         return 0;
     }
 
@@ -452,7 +458,7 @@ float GLByteFlowRender::GetFrameProgress() {
 void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
     float progress = GetFrameProgress();
 
-    LOGCATE("GLByteFlowRender::SetShaderProgramDynamicAttrib progress=%f, m_ShaderIndex=%d",
+    LOGCATV("GLByteFlowRender::SetShaderProgramDynamicAttrib progress=%f, m_ShaderIndex=%d",
             progress, shaderIndex);
     TransformMatrix transformMatrix = m_TransformMatrix;
     switch (shaderIndex) {
@@ -461,7 +467,7 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
                 glUniform1f(m_OffsetHandle, 0.01f * progress);
             }
             transformMatrix.scaleX = transformMatrix.scaleY = 1.0f + 0.2f * progress;
-            LOGCATE("GLByteFlowRender::SetShaderProgramDynamicAttrib transformMatrix.scaleX=%f",
+            LOGCATV("GLByteFlowRender::SetShaderProgramDynamicAttrib transformMatrix.scaleX=%f",
                     transformMatrix.scaleX);
             break;
         case ANTI_WIHITE_SHADER_INDEX:
@@ -492,6 +498,14 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
             }
         }
             break;
+        case 32:{
+            if (m_OffsetHandle >= 0) {
+                LOGCATI("Color Filter H(%f) of HSV", m_HSVColorFilter);
+                float offset = getHSVColorFilter(); //test to set diff type
+                glUniform1f(m_OffsetHandle, offset);
+            }
+            break;
+        }
         case DOUYIN_SHADER_INDEX: {
             if (m_OffsetHandle >= 0) {
 
@@ -540,7 +554,7 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
 }
 
 void GLByteFlowRender::LoadFilterImageData(int index, NativeImage *pImage) {
-    LOGCATE("GLByteFlowRender::LoadFilterImageData pImage = %p, index=%d", pImage->ppPlane[0],
+    LOGCATV("GLByteFlowRender::LoadFilterImageData pImage = %p, index=%d", pImage->ppPlane[0],
             index);
     ByteFlowLock lock(&m_SynLock);
     NativeImageUtil::FreeNativeImage(&m_ExtRgbaImage);
@@ -552,7 +566,7 @@ void GLByteFlowRender::LoadFilterImageData(int index, NativeImage *pImage) {
 }
 
 void GLByteFlowRender::LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen) {
-    LOGCATE("GLByteFlowRender::LoadFragShaderScript pShaderStr = %p, shaderIndex=%d", pShaderStr,
+    LOGCATV("GLByteFlowRender::LoadFragShaderScript pShaderStr = %p, shaderIndex=%d", pShaderStr,
             shaderIndex);
     if (m_ShaderIndex != shaderIndex) {
         ByteFlowLock lock(&m_ShaderBufLock);

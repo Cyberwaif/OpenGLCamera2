@@ -2,11 +2,14 @@ package com.byteflow.openglcamera2.render;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.util.Size;
+
+import com.byteflow.openglcamera2.NumberUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,6 +29,9 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
     private Size mCurrentImgSize;
     private String mImagePath;
     private Callback mCallback;
+    private int mColorPointX, mColorPointY;
+    private boolean mSwitchColor = false;
+    private boolean mColorReset = false;
 
     public GLByteFlowRender() {
 
@@ -73,6 +79,7 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
         String result = null;
         try {
             InputStream in = r.getAssets().open("shaders/fshader_" + shaderIndex + ".glsl");
+            Log.i(TAG, "load shader"+shaderIndex);
             int ch = 0;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             while ((ch = in.read()) != -1) {
@@ -106,10 +113,53 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
 
     }
 
+    static public String patchHexString(String str, int maxLength) {
+        String temp = "";
+        for (int i = 0; i < maxLength - str.length(); i++) {
+            temp = "0" + temp;
+        }
+        str = (temp + str).substring(0, maxLength);
+        return str;
+    }
+    public static String algorismToHEXString(int algorism, int maxLength) {
+        String result = "";
+        result = Integer.toHexString(algorism);
+
+        if (result.length() % 2 == 1) {
+            result = "0" + result;
+        }
+        return patchHexString(result.toUpperCase(), maxLength);
+    }
+
     @Override
     public void onDrawFrame(GL10 gl) {
         Log.d(TAG, "onDrawFrame() called with: gl = [" + gl + "]");
         native_OnDrawFrame();
+
+        if(mSwitchColor) {
+            float[] hsv = new float[3];
+            mSwitchColor = false;
+            if(mColorReset) {
+                mColorReset = false;
+                hsv[0] = 2.0f; //valid value[0,1]
+            } else {
+                ByteBuffer buffer = ByteBuffer.allocate(1 * 1 * 3);
+                GLES20.glReadPixels(mColorPointX, mGLSurfaceView.getHeight() - mColorPointY, 1, 1, GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, buffer);
+                byte[] bytes = buffer.array();
+                Log.i(TAG, mColorPointX + "," + mColorPointY + " r:" + NumberUtil.convertByteToInt(bytes[0])
+                        + " g:" + NumberUtil.convertByteToInt(bytes[1])
+                        + " b:" + NumberUtil.convertByteToInt(bytes[2]));
+
+                int rgb = (NumberUtil.convertByteToInt(bytes[0]) << 16)
+                        | (NumberUtil.convertByteToInt(bytes[1]) << 8)
+                        | NumberUtil.convertByteToInt(bytes[2]);
+                Color.colorToHSV(rgb, hsv);
+                hsv[0] = hsv[0]/360;
+                Log.i(TAG, "RGB: " + NumberUtil.toHexString(bytes) + ". HSV:" + hsv[0] + "," + hsv[1] + "," + hsv[2]);
+            }
+            Log.i(TAG, "native_SetHSV h="+hsv[0]);
+            native_SetHSV(hsv[0]);
+        }
 
         if (mReadPixels) {
             saveToLocal(createBitmapFromGLSurface(0, 0, mCurrentImgSize.getWidth(), mCurrentImgSize.getHeight()), mImagePath);
@@ -126,11 +176,28 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
         mCallback = callback;
     }
 
+    /**
+     * glReadPixels size need be same with "glViewport(0, 0, m_ViewportWidth, m_ViewportHeight)", or image will be cut.
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @return
+     */
     private Bitmap createBitmapFromGLSurface(int x, int y, int w, int h) {
         ByteBuffer buffer = ByteBuffer.allocate(w * h * 4);
         GLES20.glReadPixels(x, y, w, h, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer);
+        Log.i(TAG, "createBitmapFromGLSurface "+x+","+y+". "+w+"x"+h);
         Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         bitmap.copyPixelsFromBuffer(buffer);
+
+//        ByteBuffer buffer1 = ByteBuffer.allocate(1 * 1 * 3);
+//        GLES20.glReadPixels(540,960, 1, 1, GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, buffer1);
+//        Color c = bitmap.getColor(540,960);
+//        Log.i(TAG, "argb: "+NumberUtil.toHexString(c.toArgb()));
+//        Log.i(TAG, c.red()+","+c.green()+","+c.blue());
+//        Log.i(TAG, NumberUtil.toHexString(buffer1.array()));
+
         Matrix matrix = new Matrix();
         matrix.setRotate(180);
         matrix.postScale(-1, 1);
@@ -164,6 +231,13 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void FilterColor(float x, float y, boolean reset) {
+        mColorPointX = (int)x;
+        mColorPointY = (int)y;
+        mSwitchColor = true;
+        mColorReset = reset;
     }
 
     public interface Callback {
