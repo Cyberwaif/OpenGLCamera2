@@ -41,6 +41,8 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     protected int mCurrentShaderIndex = 32;
     protected Size mRootViewSize, mScreenSize;
 
+    protected boolean SwipeSupported = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

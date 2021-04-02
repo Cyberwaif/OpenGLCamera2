@@ -50,6 +50,7 @@ public class FrameUtil {
     }
 
     public static String encodeFrame(ByteFlowFrame flowFrame) {
+        Log.i(TAG, "encodeFrame E");
         if (flowFrame.getData() != null) {
             StringBuilder stringBuilder = new StringBuilder("Img");
             stringBuilder.append("_").append(System.currentTimeMillis()).append("_")
@@ -66,6 +67,7 @@ public class FrameUtil {
                 e.printStackTrace();
             }
         }
+        Log.i(TAG, "encodeFrame X");
         return null;
     }
 

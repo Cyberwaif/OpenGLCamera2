@@ -15,7 +15,7 @@ vec3 rgb2hsv(vec3 c) {
 	float e = 1.0e-10;
 	return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
-vec4 YuvToRgb(vec2 uv) {
+vec4 YuvToRgb(vec2 uv, float offset) {
     float y, u, v, r, g, b;
     y = texture2D(s_textureY, uv).r;
     u = texture2D(s_textureU, uv).r;
@@ -27,9 +27,23 @@ vec4 YuvToRgb(vec2 uv) {
     b = y + 1.770 * u;
     vec3 c1 = vec3(r, g, b);
     vec3 hsv = rgb2hsv(c1);
-    if(hsv.x > 0.8 || hsv.x < 0.04) {
+    if(offset > 1.0) {
         return vec4(c1, 1.0);
     }
+    float max = offset + 0.1;
+    float min = offset - 0.1;
+    if(max > 1.0) {
+        if(hsv.x > min || hsv.x < (max - 1.0)) {
+            return vec4(c1, 1.0);
+        }
+    } else if(min < 0.0) {
+        if(hsv.x > (1.0 + min) || hsv.x < max) {
+            return vec4(c1, 1.0);
+        }
+    } else if(hsv.x > min && hsv.x < max) {
+        return vec4(c1, 1.0);
+    }
+
     c1 += vec3(0.3, 0.1588, 0);
     vec3 desat = vec3(0.6, 0.25, 0.15);
     float grayness = dot(c1, desat);
@@ -40,11 +54,5 @@ vec4 YuvToRgb(vec2 uv) {
 }
 void main()
 {
-    if(u_offset == 2.0)
-    {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
-    else {
-        gl_FragColor = YuvToRgb(v_texcoord);
-    }
+    gl_FragColor = YuvToRgb(v_texcoord, u_offset);
 }

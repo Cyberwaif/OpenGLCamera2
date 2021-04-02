@@ -500,7 +500,6 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
             break;
         case 32:{
             if (m_OffsetHandle >= 0) {
-                LOGCATI("Color Filter H(%f) of HSV", m_HSVColorFilter);
                 float offset = getHSVColorFilter(); //test to set diff type
                 glUniform1f(m_OffsetHandle, offset);
             }

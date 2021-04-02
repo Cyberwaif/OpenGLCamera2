@@ -49,7 +49,7 @@ public class ImageActivity extends BaseRenderActivity implements GLByteFlowRende
         String path = getIntent().getStringExtra("img_path");
         String camera_id = getIntent().getStringExtra("img_ort");
         int orientation = getIntent().getIntExtra("sensor_orientation", 90);
-        Log.d(TAG, "onCreate() called with: path = [" + path + "]");
+        Log.i(TAG, "onCreate() called with: path = [" + path + "]");
         mByteFlowFrame = FrameUtil.decodeFrame(path);
         updateTransformMatrix(camera_id, orientation);
         mByteFlowRender.readPixels(new Size(mByteFlowFrame.getHeight(),mByteFlowFrame.getWidth()), getResultImgFile(".jpg").getPath());
@@ -80,6 +80,8 @@ public class ImageActivity extends BaseRenderActivity implements GLByteFlowRende
 
     @Override
     public void onSwipe(MyGestureListener.SwipeDirection direction) {
+        if(!SwipeSupported)
+            return;
         Log.d(TAG, "onSwipe() called with: direction = [" + direction + "]");
         switch (direction) {
             case SWIPE_UP:

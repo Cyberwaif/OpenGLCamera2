@@ -37,6 +37,7 @@ import com.byteflow.openglcamera2.camera.Camera2Wrapper;
 import com.byteflow.openglcamera2.frame.ByteFlowFrame;
 import com.byteflow.openglcamera2.frame.FrameUtil;
 import com.byteflow.openglcamera2.gesture.MyGestureListener;
+import com.byteflow.openglcamera2.render.GLByteFlowRender;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ import java.util.List;
 
 import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_I420;
 
-public class MainActivity extends BaseRenderActivity implements Camera2FrameCallback, MyGestureListener.SimpleGestureListener, View.OnClickListener, View.OnTouchListener {
+public class MainActivity extends BaseRenderActivity implements Camera2FrameCallback, MyGestureListener.SimpleGestureListener, View.OnClickListener, View.OnTouchListener, GLByteFlowRender.ColorFilterCallback {
     private static final String TAG = "MainActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.CAMERA,
@@ -180,7 +181,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         mSwitchCamBtn = (ImageButton) findViewById(R.id.switch_camera_btn);
         mSwitchRatioBtn = (ImageButton) findViewById(R.id.switch_ratio_btn);
         resetBtn = findViewById(R.id.btn_reset);
-        resetBtn.setBackgroundColor(0xFFFF0000);
+        resetBtn.setBackgroundColor(GLByteFlowRender.ColorFilterRGB);
         resetBtn.setOnClickListener(this);
         mSwitchCamBtn.bringToFront();
         mSwitchRatioBtn.bringToFront();
@@ -194,6 +195,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         mGLSurfaceView.setOnTouchListener(this);
         mByteFlowRender.init(mGLSurfaceView);
         mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
+        mByteFlowRender.setColorFilterCallback(this);
 
         mCamera2Wrapper = new Camera2Wrapper(this);
         //mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
@@ -329,6 +331,8 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
     @Override
     public void onSwipe(MyGestureListener.SwipeDirection direction) {
+        if(!SwipeSupported)
+            return;
         Log.d(TAG, "onSwipe() called with: direction = [" + direction + "]");
         switch (direction) {
             case SWIPE_UP:
@@ -401,6 +405,8 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 break;
         }
 
+        resetBtn.setVisibility(mCurrentShaderIndex == 32?View.VISIBLE:View.GONE);
+
     }
 
     @Override
@@ -439,6 +445,11 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
     private void switchColor(float x, float y) {
         mByteFlowRender.FilterColor(x, y, false);
+    }
+
+    @Override
+    public void onColorChanged(int rgb, float[] hsv) {
+        resetBtn.setBackgroundColor(rgb | 0xFF000000);
     }
 
     public static class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> implements View.OnClickListener {
