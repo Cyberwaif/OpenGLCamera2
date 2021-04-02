@@ -1,3 +1,14 @@
+本项目Fork自https://github.com/githubhaohao/OpenGLCamera2，感谢大佬。
+Demo成果
+
+![before](https://github.com/Cyberwaif/OpenGLCamera2/blob/master/gif/before.jpg)
+
+![after](https://github.com/Cyberwaif/OpenGLCamera2/blob/master/gif/after.jpg)
+
+
+
+以下为原项目介绍。
+
 # OpenGLCamera2
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/githubhaohao/NDK_OpenGLES_3_0/blob/master/LICENSE.txt)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)

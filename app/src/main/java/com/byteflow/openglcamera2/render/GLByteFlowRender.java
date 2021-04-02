@@ -48,11 +48,16 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
 
         native_CreateContext(GL_RENDER_TYPE);
         native_Init(0);
-        float hsv[] = new float[3];
-        Color.colorToHSV(ColorFilterRGB, hsv);
-        hsv[0] = hsv[0]/360;
-        native_SetHSV(hsv[0]);
-        Log.i(TAG, "init HSV = "+hsv[0] + " RGB = "+NumberUtil.toHexString(ColorFilterRGB));
+
+        if(ColorFilterRGB == 0xFFFFFFFF) {
+            native_SetHSV(2.0f);
+        } else {
+            float hsv[] = new float[3];
+            Color.colorToHSV(ColorFilterRGB, hsv);
+            hsv[0] = hsv[0] / 360;
+            Log.i(TAG, "init HSV = " + hsv[0] + " RGB = " + NumberUtil.toHexString(ColorFilterRGB));
+            native_SetHSV(hsv[0]);
+        }
     }
 
     public void requestRender() {
@@ -150,7 +155,7 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
             if(mColorReset) {
                 mColorReset = false;
                 hsv[0] = 2.0f; //valid value[0,1]
-                colorFilterCallback.onColorChanged(0xFFFFFFFF, hsv);
+                ColorFilterRGB = 0xFFFFFFFF;
             } else {
                 ByteBuffer buffer = ByteBuffer.allocate(1 * 1 * 3);
                 GLES20.glReadPixels(mColorPointX, mGLSurfaceView.getHeight() - mColorPointY, 1, 1, GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, buffer);
@@ -167,8 +172,8 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
                 Color.colorToHSV(rgb, hsv);
                 hsv[0] = hsv[0]/360;
                 Log.i(TAG, "RGB: " + NumberUtil.toHexString(bytes) + ". HSV:" + hsv[0] + "," + hsv[1] + "," + hsv[2]);
-                colorFilterCallback.onColorChanged(ColorFilterRGB, hsv);
             }
+            colorFilterCallback.onColorChanged(ColorFilterRGB, hsv);
             Log.i(TAG, "native_SetHSV h="+hsv[0]);
             native_SetHSV(hsv[0]);
         }
